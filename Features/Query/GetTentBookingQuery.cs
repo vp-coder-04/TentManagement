@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using TentBooking.Models;
+using TentBooking.Features.Dtos;
 
 namespace TentBooking.Features.Query
 {
-    public class GetTentBookingQuery : IRequest<IEnumerable<Booking>>
+    public class GetTentBookingQuery : IRequest<IEnumerable<TentBookingDto>>
     {
     }
 }
