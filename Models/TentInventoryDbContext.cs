@@ -17,6 +17,8 @@ public partial class TentInventoryDbContext : DbContext
 
     public virtual DbSet<Booking> Bookings { get; set; }
 
+    public virtual DbSet<Claim> Claims { get; set; }
+
     public virtual DbSet<Client> Clients { get; set; }
 
     public virtual DbSet<Design> Designs { get; set; }
@@ -27,18 +29,20 @@ public partial class TentInventoryDbContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserClaim> UserClaims { get; set; }
+
+    public virtual DbSet<UserRole> UserRoles { get; set; }
+
     public virtual DbSet<Worker> Workers { get; set; }
 
-    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-    //        => optionsBuilder.UseSqlServer("Server=SBINO-PC\\SQLEXPRESS;Database=TentInventoryDb;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;");
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=SBINO-PC\\SQLEXPRESS;Database=TentInventoryDb;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;");
 
-        }
-    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Booking>(entity =>
@@ -62,6 +66,14 @@ public partial class TentInventoryDbContext : DbContext
             entity.HasOne(d => d.Team).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.TeamId)
                 .HasConstraintName("FK__Booking__TeamId__5812160E");
+        });
+
+        modelBuilder.Entity<Claim>(entity =>
+        {
+            entity.HasKey(e => e.ClaimsId).HasName("PK__Claims__7507312BA9E529EA");
+
+            entity.Property(e => e.ClaimType).HasMaxLength(50);
+            entity.Property(e => e.ClaimValue).HasMaxLength(150);
         });
 
         modelBuilder.Entity<Client>(entity =>
@@ -146,6 +158,56 @@ public partial class TentInventoryDbContext : DbContext
             entity.Property(e => e.ProductName).HasMaxLength(100);
             entity.Property(e => e.Quality).HasMaxLength(50);
             entity.Property(e => e.Totalstock).HasColumnName("totalstock");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1AE528C1A9");
+
+            entity.Property(e => e.RoleName).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4CABE3A616");
+
+            entity.Property(e => e.PasswordHash).HasMaxLength(255);
+            entity.Property(e => e.UserEmail)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<UserClaim>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UserClai__3213E83F491AD987");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.HasOne(d => d.Claim).WithMany(p => p.UserClaims)
+                .HasForeignKey(d => d.ClaimId)
+                .HasConstraintName("FK__UserClaim__Claim__634EBE90");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserClaims)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__UserClaim__UserI__625A9A57");
+        });
+
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UserRole__3213E83F9385C6A5");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.RoleId)
+                .HasConstraintName("FK__UserRoles__RoleI__671F4F74");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__UserRoles__UserI__662B2B3B");
         });
 
         modelBuilder.Entity<Worker>(entity =>
